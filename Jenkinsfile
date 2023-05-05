@@ -1,23 +1,28 @@
 pipeline {
-    agent { label 'dev-agent' }
+    agent { label 'Production-agent' }
     
     stages{
         stage('Code'){
             steps {
-                git url: 'https://github.com/LondheShubham153/node-todo-cicd.git', branch: 'master'
+                git url: 'https://github.com/SudipaDas/Node-todo-cicd.git', branch: 'main'
             }
         }
         stage('Build and Test'){
             steps {
-                sh 'docker build . -t trainwithshubham/node-todo-app-cicd:latest' 
+                sh 'docker build . -t sudipadas/node-todo-cicd:latest' 
             }
         }
-        stage('Login and Push Image'){
+        stage('Loging Dockerhub and push image'){
             steps {
-                echo 'logging in to docker hub and pushing image..'
-                withCredentials([usernamePassword(credentialsId:'dockerHub',passwordVariable:'dockerHubPassword', usernameVariable:'dockerHubUser')]) {
-                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                    sh "docker push trainwithshubham/node-todo-app-cicd:latest"
+                echo 'login and push'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerhubpassword', usernameVariable: 'dockerhubuser')]){
+                    //sh 'echo dockerhubuser'
+                    // also available as a Groovy variable
+                    //echo dockerhubuser
+                    // or inside double quotes for string interpolation
+                    echo "username is $dockerhubuser"
+                    sh "docker login -u ${env.dockerhubuser} -p ${env.dockerhubpassword}"
+                    sh "docker push $dockerhubuser/node-todo-cicd:latest"
                 }
             }
         }
